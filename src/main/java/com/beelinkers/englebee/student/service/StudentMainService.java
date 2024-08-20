@@ -1,5 +1,7 @@
 package com.beelinkers.englebee.student.service;
 
-public interface StudentMainService {
+import com.beelinkers.englebee.student.dto.response.StudentMainPageDTO;
 
+public interface StudentMainService {
+    StudentMainPageDTO getStudentMainPage(Long memberSeq, String code);
 }
