@@ -49,6 +49,7 @@ public class Reply extends BaseEntity {
     this.question = question;
     this.member = author;
     this.content = content;
+    question.getReplies().add(this);
   }
 
 }

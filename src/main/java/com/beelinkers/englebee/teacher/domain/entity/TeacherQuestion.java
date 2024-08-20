@@ -60,6 +60,7 @@ public class TeacherQuestion extends BaseEntity {
     this.choices = choices;
     this.correctAnswer = correctAnswer;
     this.intent = intent;
+    exam.getQuestions().add(this);
   }
 
   public void insertStudentAnswer(Integer studentAnswer) {
