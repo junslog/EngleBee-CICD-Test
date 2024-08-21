@@ -57,13 +57,15 @@ public class Lecture extends BaseEntity {
   private LectureStatus status;
 
   @Builder
-  public Lecture(Member teacher, Member student, String title,
-      List<LectureSubjectLevel> subjectLevels) {
+  public Lecture(Member teacher, Member student, String title) {
     this.teacher = teacher;
     this.student = student;
     this.title = title;
-    this.subjectLevels = subjectLevels;
     this.status = LectureStatus.CREATED;
+  }
+
+  public void finish() {
+    this.status = LectureStatus.FINISHED;
   }
 
 }
