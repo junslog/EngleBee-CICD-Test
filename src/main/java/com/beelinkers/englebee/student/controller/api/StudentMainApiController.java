@@ -5,6 +5,8 @@ import com.beelinkers.englebee.student.dto.response.StudentMainPageDTO;
 import com.beelinkers.englebee.student.service.StudentMainService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,9 +24,9 @@ public class StudentMainApiController {
   @GetMapping("/qna")
   public ResponseEntity<StudentMainPageDTO> getMainPage(
           @RequestParam("memberSeq") Long memberSeq,
-          @RequestParam("code") String code
-  ) {
-    StudentMainPageDTO studentMainPageDTO = studentMainService.getStudentMainPage(memberSeq, code);
+          @RequestParam("code") String code,
+          @PageableDefault(size = 10, page = 0) Pageable pageable) {
+    StudentMainPageDTO studentMainPageDTO = studentMainService.getStudentMainPage(memberSeq, code, pageable);
     return ResponseEntity.ok(studentMainPageDTO);
   }
 
