@@ -40,7 +40,7 @@ public class LectureSubjectLevel extends BaseEntity {
   private Lecture lecture;
 
   @Builder
-  public LectureSubjectLevel(SubjectLevel subjectLevel, Lecture lecture) {
+  public LectureSubjectLevel(Lecture lecture, SubjectLevel subjectLevel) {
     this.subjectLevel = subjectLevel;
     this.lecture = lecture;
     lecture.getSubjectLevels().add(this);
