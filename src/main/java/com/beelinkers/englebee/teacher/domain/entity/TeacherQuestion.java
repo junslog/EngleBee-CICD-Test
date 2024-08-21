@@ -53,14 +53,17 @@ public class TeacherQuestion extends BaseEntity {
   private Integer studentAnswer;
 
   @Builder
-  public TeacherQuestion(Exam exam, String direction, String choices, Integer correctAnswer,
+  public TeacherQuestion(String direction, String choices, Integer correctAnswer,
       String intent) {
-    this.exam = exam;
     this.direction = direction;
     this.choices = choices;
     this.correctAnswer = correctAnswer;
     this.intent = intent;
-    exam.getQuestions().add(this);
+  }
+
+  public void registerToExam(Exam exam) {
+    this.exam = exam;
+    exam.getTeacherQuestions().add(this);
   }
 
   public void insertStudentAnswer(Integer studentAnswer) {
