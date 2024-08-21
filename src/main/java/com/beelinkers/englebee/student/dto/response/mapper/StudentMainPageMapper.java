@@ -24,7 +24,7 @@ public class StudentMainPageMapper {
     }
 
     // main > Q&A
-    public MainPageQuestionDTO mainPageQnaDTO(Question question) {
+    public MainPageQuestionDTO mainPageQuestionDTO(Question question) {
         return new MainPageQuestionDTO(
             question.getSeq(),
             question.getMember().getSeq(),
