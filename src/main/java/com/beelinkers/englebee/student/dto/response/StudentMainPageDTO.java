@@ -17,5 +17,7 @@ public class StudentMainPageDTO {
     private List<MainPageQuestionDTO> questionList;
     private List<MainPageNewExamDTO> newExamList;
     private List<MainPageSubmitExamDTO> submitExamList;
-    private PaginationResponseDTO pagination;
+    private PaginationResponseDTO questionPagination;
+    private PaginationResponseDTO newExamPagination;
+    private PaginationResponseDTO submitExamPagination;
 }

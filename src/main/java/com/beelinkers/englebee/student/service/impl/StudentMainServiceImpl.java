@@ -49,6 +49,8 @@ public class StudentMainServiceImpl implements StudentMainService {
         List<MainPageNewExamDTO> newExamList;
         List<MainPageSubmitExamDTO> submitExamList;
         PaginationResponseDTO questionPagination;
+        PaginationResponseDTO newExamPagination;
+        PaginationResponseDTO submitExamPagination;
 
         if("STUDENT".equals(code)) {
             List<Lecture> lectures = lectureRepository.findByStudentSeq(memberSeq);
@@ -60,7 +62,6 @@ public class StudentMainServiceImpl implements StudentMainService {
             questionList = questionPageData.getContent().stream()
                     .map(studentMainPageMapper::mainPageQuestionDTO)
                     .collect(Collectors.toList());
-            // pagination
             questionPagination = new PaginationResponseDTO(
                 questionPageData.getNumber(),
                 questionPageData.getSize(),
@@ -70,21 +71,38 @@ public class StudentMainServiceImpl implements StudentMainService {
                 questionPageData.hasNext()
             );
 
-            List<Exam> newExams = examRepository.findByLectureStudentSeq(memberSeq);
-            newExamList = newExams.stream()
+            Page<Exam> newExamsPageData = examRepository.findByLectureStudentSeqAndStatus(memberSeq, ExamStatus.PREPARED, pageable);
+            newExamList = newExamsPageData.getContent().stream()
                     .filter(exam -> exam.getStatus() == ExamStatus.PREPARED)
                     .map(studentMainPageMapper::mainPageNewExamDTO)
                     .collect(Collectors.toList());
+            //pagination
+            newExamPagination = new PaginationResponseDTO(
+                    newExamsPageData.getNumber(),
+                    newExamsPageData.getSize(),
+                    newExamsPageData.getTotalPages(),
+                    newExamsPageData.getTotalElements(),
+                    newExamsPageData.hasPrevious(),
+                    newExamsPageData.hasNext()
+            );
 
-            List<Exam> submitExams = examRepository.findByLectureStudentSeq(memberSeq);
-            submitExamList = submitExams.stream()
-                    .filter(exam -> exam.getStatus() == ExamStatus.SUBMITTED || exam.getStatus() == ExamStatus.FEEDBACK_COMPLETED)
+            Page<Exam> submitExamsPageData = examRepository.findByLectureStudentSeqAndStatusIn(memberSeq, List.of(ExamStatus.SUBMITTED, ExamStatus.FEEDBACK_COMPLETED), pageable);
+            submitExamList = submitExamsPageData.getContent().stream()
                     .map(studentMainPageMapper::mainPageSubmitExamDTO)
                     .collect(Collectors.toList());
+            // pagination
+            submitExamPagination = new PaginationResponseDTO(
+                    submitExamsPageData.getNumber(),
+                    submitExamsPageData.getSize(),
+                    submitExamsPageData.getTotalPages(),
+                    submitExamsPageData.getTotalElements(),
+                    submitExamsPageData.hasPrevious(),
+                    submitExamsPageData.hasNext()
+            );
         } else {
             throw new IllegalArgumentException("접속하신 코드가 일치하지 않습니다. 해당코드 : "+code);
         }
-        return new StudentMainPageDTO(lectureList, questionList, newExamList, submitExamList, questionPagination );
+        return new StudentMainPageDTO(lectureList, questionList, newExamList, submitExamList, questionPagination, newExamPagination, submitExamPagination);
     }
 
 
