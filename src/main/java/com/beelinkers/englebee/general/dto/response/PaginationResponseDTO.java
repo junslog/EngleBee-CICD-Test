@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Getter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaginationResponseDTO {

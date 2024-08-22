@@ -8,8 +8,8 @@ import com.beelinkers.englebee.general.domain.repository.QuestionRepository;
 import com.beelinkers.englebee.student.dto.response.*;
 import com.beelinkers.englebee.student.dto.response.mapper.StudentMainPageMapper;
 import com.beelinkers.englebee.student.service.StudentMainService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,24 +17,13 @@ import java.util.List;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class StudentMainServiceImpl implements StudentMainService {
 
     private final LectureRepository lectureRepository;
     private final QuestionRepository questionRepository;
     private final ExamRepository examRepository;
     private final StudentMainPageMapper studentMainPageMapper;
-
-    @Autowired
-    public StudentMainServiceImpl(
-            LectureRepository lectureRepository,
-            QuestionRepository questionRepository,
-            ExamRepository examRepository,
-            StudentMainPageMapper studentMainPageMapper) {
-        this.lectureRepository = lectureRepository;
-        this.questionRepository = questionRepository;
-        this.examRepository = examRepository;
-        this.studentMainPageMapper = studentMainPageMapper;
-    }
 
     @Override
     public Page<MainPageLectureDTO> getLectureList(Long memberSeq, Pageable pageable) {
