@@ -15,7 +15,7 @@ jobs:
 
       # 1. Docker 이미지를 먼저 빌드
       - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee:latest .
 
       # 2. DockerHub 로그인 (빌드 후 로그인)
       - name: Log in to Docker Hub
@@ -26,7 +26,7 @@ jobs:
 
       # 3. Docker 이미지를 Docker Hub에 푸시
       - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee:latest
 
   # Docker 이미지를 EC2에서 실행하는 작업
   run-docker-image-on-ec2:
@@ -50,14 +50,14 @@ jobs:
             sudo usermod -aG docker $USER
 
             # Docker Hub에서 최신 이미지를 가져오기
-            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/englebee:latest
 
             # 실행 중인 컨테이너 중지 및 삭제
             sudo docker stop englebee || true
             sudo docker rm englebee || true
 
             # 새 컨테이너 실행
-            sudo docker run --name englebee --rm -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+            sudo docker run --name englebee --rm -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/englebee:latest
 
             # 불필요한 Docker 시스템 캐시 정리
             sudo docker system prune -f
