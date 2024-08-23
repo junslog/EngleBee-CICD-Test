@@ -29,12 +29,17 @@ jobs:
                               -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest \
                               --push .
 
+      - name: Set up SSH key
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key.pem
+          chmod 600 /tmp/ssh_key.pem
+
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v0.1.2
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: /tmp/ssh_key.pem
           script: |
             # 이전에 실행 중이던 컨테이너 중지 및 삭제
             docker stop englebee || true
