@@ -6,53 +6,49 @@ on:
       - develop
 
 jobs:
-  deploy:
+  # Docker 이미지를 빌드하고 Docker Hub에 푸시하는 작업
+  build-docker-image:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+      # 1. Docker 이미지를 빌드하고 Docker Hub에 푸시
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
 
+      # 2. DockerHub 로그인
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build and push Docker image
+  # Docker 이미지를 EC2에서 실행하는 작업
+  run-docker-image-on-ec2:
+    needs: build-docker-image
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. SSH 클라이언트 설치
+      - name: Install SSH client
+        run: sudo apt-get install -y openssh-client
+
+      # 2. SSH 키 설정
+      - name: Add SSH key
+        run: echo "${{ secrets.EC2_SSH_KEY }}" > key.pem && chmod 600 key.pem
+
+      # 3. EC2에서 Docker 명령어 실행
+      - name: SSH and Run Docker Commands on EC2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          docker buildx build --cache-to=type=local,dest=/tmp/.buildx-cache \
-                              --cache-from=type=local,src=/tmp/.buildx-cache \
-                              -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest \
-                              --push .
-
-      - name: Set up SSH key
-        run: |
-          echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/ssh_key.pem
-          chmod 600 /tmp/ssh_key.pem
-
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v0.1.2
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USERNAME }}
-          key_path: /tmp/ssh_key.pem
-          script: |
-            # 이전에 실행 중이던 컨테이너 중지 및 삭제
-            docker stop englebee || true
-            docker rm englebee || true
-
-            # 최신 Docker 이미지 가져오기
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
-
-            # Spring Boot 애플리케이션 Docker 컨테이너 실행
-            docker run -d \
-              --name englebee \
-              -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
-              -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-              -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-              -p 8080:8080 \
-              ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+          ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
+            sudo usermod -aG docker $USER
+            sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+            sudo docker stop $(sudo docker ps -q) 2>/dev/null || true
+            sudo docker run --name englebee --rm -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+            sudo docker system prune -f
+          EOF
