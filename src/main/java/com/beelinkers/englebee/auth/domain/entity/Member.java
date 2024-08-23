@@ -25,7 +25,7 @@ import lombok.NoArgsConstructor;
     allocationSize = 1
 )
 @Table(
-    name = "MEMBER",
+    name = "member",
     uniqueConstraints = {
         @UniqueConstraint(columnNames = "email", name = "UNIQUE_EMAIL_CONSTRAINT"),
         @UniqueConstraint(columnNames = "nickname", name = "UNIQUE_NICKNAME_CONSTRAINT")
