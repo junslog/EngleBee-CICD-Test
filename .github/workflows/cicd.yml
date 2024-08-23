@@ -13,18 +13,20 @@ jobs:
       - name: Checkout source code
         uses: actions/checkout@v3
 
-      # DockerHub 로그인
+      # 1. Docker 이미지를 먼저 빌드
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest .
+
+      # 2. DockerHub 로그인 (빌드 후 로그인)
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # Docker 이미지를 빌드하고 Docker Hub에 푸시
-      - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+      # 3. Docker 이미지를 Docker Hub에 푸시
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
 
   # Docker 이미지를 EC2에서 실행하는 작업
   run-docker-image-on-ec2:
