@@ -12,8 +12,11 @@ public class DBConnectionTestController {
   private MemberRepository memberRepository;
 
   @GetMapping("/db/conn")
-  public Member testDB(){
-    return memberRepository.findById(1L).orElse(null);
+  public String testDB(){
+    if(memberRepository.findById(1L).isEmpty()){
+      return "no item!";
+    }
+    return "yes item!";
   }
 
 }
