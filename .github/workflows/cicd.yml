@@ -10,20 +10,21 @@ jobs:
   build-docker-image:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout source code
+        uses: actions/checkout@v3
 
-      # 1. Docker 이미지를 빌드하고 Docker Hub에 푸시
-      - name: Build and push Docker image
-        run: |
-          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest .
-          docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
-
-      # 2. DockerHub 로그인
+      # DockerHub 로그인
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      # Docker 이미지를 빌드하고 Docker Hub에 푸시
+      - name: Build and push Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
 
   # Docker 이미지를 EC2에서 실행하는 작업
   run-docker-image-on-ec2:
@@ -31,24 +32,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. SSH 클라이언트 설치
+      # SSH 클라이언트 설치
       - name: Install SSH client
         run: sudo apt-get install -y openssh-client
 
-      # 2. SSH 키 설정
+      # SSH 키 설정
       - name: Add SSH key
         run: echo "${{ secrets.EC2_SSH_KEY }}" > key.pem && chmod 600 key.pem
 
-      # 3. EC2에서 Docker 명령어 실행
+      # EC2에서 Docker 명령어 실행
       - name: SSH and Run Docker Commands on EC2
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
+            # Docker 명령어를 실행할 사용자에 Docker 권한 추가
             sudo usermod -aG docker $USER
+
+            # Docker Hub에서 최신 이미지를 가져오기
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
-            sudo docker stop $(sudo docker ps -q) 2>/dev/null || true
+
+            # 실행 중인 컨테이너 중지 및 삭제
+            sudo docker stop englebee || true
+            sudo docker rm englebee || true
+
+            # 새 컨테이너 실행
             sudo docker run --name englebee --rm -d -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/englebee-test:latest
+
+            # 불필요한 Docker 시스템 캐시 정리
             sudo docker system prune -f
           EOF
