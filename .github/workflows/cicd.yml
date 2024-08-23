@@ -56,7 +56,7 @@ jobs:
             fi
 
             # Docker 컨테이너 실행 시 환경 변수 주입
-            sudo docker run --name englebee --rm -d -p 8080:8080 \
+            sudo docker run --name englebee -d -p 8080:8080 \
               -e SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} \
               -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
               -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
