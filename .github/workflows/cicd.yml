@@ -48,8 +48,12 @@ jobs:
           ssh -o StrictHostKeyChecking=no -i key.pem ubuntu@${{ secrets.AWS_EC2_IP }} << 'EOF'
             sudo usermod -aG docker $USER
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/englebee:latest
-            sudo docker stop englebee || true
-            sudo docker rm englebee || true
+
+            # 존재하는 경우에만 컨테이너를 중지 및 삭제
+            if [ "$(sudo docker ps -aq -f name=englebee)" ]; then
+              sudo docker stop englebee
+              sudo docker rm englebee
+            fi
 
             # Docker 컨테이너 실행 시 환경 변수 주입
             sudo docker run --name englebee --rm -d -p 8080:8080 \
