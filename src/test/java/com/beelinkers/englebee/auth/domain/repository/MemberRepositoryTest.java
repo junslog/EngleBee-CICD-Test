@@ -12,7 +12,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 @DataJpaTest
-@ActiveProfiles("test")
 @Transactional
 public class MemberRepositoryTest {
 
