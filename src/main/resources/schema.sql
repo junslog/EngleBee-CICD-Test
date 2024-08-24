@@ -128,5 +128,3 @@ CREATE TABLE IF NOT EXISTS LECTURE_SUBJECT_LEVEL (
                                                      CONSTRAINT FK_LECTURE_SUBJECT_LEVEL_SUBJECT FOREIGN KEY (subject_level_seq) REFERENCES SUBJECT_LEVEL(seq),
                                                      CONSTRAINT FK_LECTURE_SUBJECT_LEVEL_LECTURE FOREIGN KEY (lecture_seq) REFERENCES LECTURE(seq)
 );
-
-

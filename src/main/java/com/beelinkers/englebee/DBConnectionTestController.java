@@ -1,15 +1,15 @@
 package com.beelinkers.englebee;
 
-import com.beelinkers.englebee.auth.domain.entity.Member;
 import com.beelinkers.englebee.auth.domain.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 public class DBConnectionTestController {
-  @Autowired
-  private MemberRepository memberRepository;
+
+  private final MemberRepository memberRepository;
 
   @GetMapping("/db/conn")
   public String testDB(){

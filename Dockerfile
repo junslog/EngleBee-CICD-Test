@@ -4,7 +4,6 @@ FROM gradle:7.6.1-jdk17 AS build
 # 소스코드를 복사할 작업 디렉토리를 생성
 WORKDIR /app
 
-
 # Gradle 빌드에 필요한 파일만 복사
 COPY build.gradle settings.gradle ./
 
